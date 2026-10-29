@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="kk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Профиль — Bimbox</title>
+    <meta name="description" content="Пайдаланушы профилі мен жетістіктер" />
+    <meta name="theme-color" content="#7C3AED" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <script>try{var th=localStorage.getItem("lingo-theme");if(th)document.documentElement.dataset.theme=th}catch(e){}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500;700&amp;family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500;700&amp;family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" /></noscript>
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+    <link rel="modulepreload" href="js/ui.js" />
+    <link rel="modulepreload" href="js/i18n-kk.js" />
+    <link rel="modulepreload" href="js/firebase-config.js" />
+    <link rel="modulepreload" href="js/auth.js" />
+    <link rel="modulepreload" href="js/db.js" />
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js" />
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js" />
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" />
+  </head>
+  <body data-page="profile">
+    <div class="app-shell">
+      <div class="page-card">
+        <h1>Профиль</h1>
+        <div id="profile-root"></div>
+      </div>
+    </div>
+    <script type="module" src="./js/profile.js"></script>
+  </body>
+</html>

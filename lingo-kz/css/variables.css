@@ -1,0 +1,76 @@
+/* Цветовая система и токены Bimbox — мягкий лиловый Soft UI */
+:root {
+  --primary: #7c3aed;
+  --primary-2: #8b5cf6;
+  --primary-hover: #6d28d9;
+  --primary-soft: #f1ebff;
+  --primary-line: rgba(124, 58, 237, 0.16);
+  --ink: #1f1637;
+  --ink-muted: #6e6787;
+  --card: #ffffff;
+  --card-alt: #f7f4ff;
+  --white: #ffffff;
+  --success: #16a34a;
+  --success-soft: #dcfce7;
+  --danger: #ef4444;
+  --danger-soft: #fee2e2;
+  --gold: #f5b942;
+  --gold-soft: #fff4d6;
+  --today: #8b5cf6;
+  --shadow: 0 20px 50px -20px rgba(124, 58, 237, 0.28);
+  --shadow-sm: 0 8px 24px -12px rgba(76, 29, 149, 0.18);
+  --radius-card: 24px;
+  --radius-pill: 999px;
+  --radius-md: 16px;
+  --radius-xl: 32px;
+  --nav-h: 78px;
+  --phone: 430px;
+  --font: "Plus Jakarta Sans", "Noto Sans", Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg-page: #f6f2ff;
+  --bg-glow: radial-gradient(60rem 30rem at 85% -10%, rgba(139, 92, 246, 0.16), transparent 60%),
+    radial-gradient(50rem 28rem at -10% 10%, rgba(196, 181, 253, 0.28), transparent 60%);
+  --glass: #ffffff;
+  --glass-border: rgba(124, 58, 237, 0.08);
+  --text: var(--ink);
+  --muted: var(--ink-muted);
+  --surface: var(--card);
+  --surface-2: var(--card-alt);
+  --nav-bg: #ffffff;
+  --nav-ink: #7d7597;
+  --input-bg: #f7f4ff;
+  --overlay: rgba(31, 22, 55, 0.45);
+  --streak-empty: #f1edfb;
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  --primary: #a78bfa;
+  --primary-2: #8b5cf6;
+  --primary-hover: #c4b5fd;
+  --primary-soft: #2e2550;
+  --primary-line: rgba(167, 139, 250, 0.22);
+  --ink: #f5f1ff;
+  --ink-muted: #b9b0d6;
+  --card: #231b3d;
+  --card-alt: #2b2249;
+  --white: #231b3d;
+  --success: #4ade80;
+  --success-soft: #163326;
+  --danger: #f87171;
+  --danger-soft: #3b1c22;
+  --gold: #fbbf24;
+  --gold-soft: #3d3012;
+  --today: #8b5cf6;
+  --shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+  --bg-page: #150f27;
+  --bg-glow: radial-gradient(60rem 30rem at 85% -10%, rgba(124, 58, 237, 0.25), transparent 60%);
+  --glass: #1d1633;
+  --glass-border: rgba(255, 255, 255, 0.06);
+  --nav-bg: #1d1633;
+  --nav-ink: #a79ec6;
+  --input-bg: #2b2249;
+  --overlay: rgba(8, 6, 18, 0.65);
+  --streak-empty: #2b2249;
+  color-scheme: dark;
+}

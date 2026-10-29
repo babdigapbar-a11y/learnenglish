@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="kk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Басты бет — Bimbox</title>
+    <meta name="description" content="Күнделікті сабақ және прогресс" />
+    <meta name="theme-color" content="#7C3AED" />
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <script>try{var th=localStorage.getItem("lingo-theme");if(th)document.documentElement.dataset.theme=th}catch(e){}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500;700&amp;family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500;700&amp;family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" /></noscript>
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+    <link rel="modulepreload" href="js/ui.js" />
+    <link rel="modulepreload" href="js/i18n-kk.js" />
+    <link rel="modulepreload" href="js/firebase-config.js" />
+    <link rel="modulepreload" href="js/auth.js" />
+    <link rel="modulepreload" href="js/db.js" />
+    <link rel="modulepreload" href="js/data/words.js" />
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js" />
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js" />
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js" />
+  </head>
+  <body data-page="home">
+    <div class="app-shell">
+      <div class="page-card">
+        <div class="home-grid">
+          <div class="home-col">
+            <div class="home-hero">
+              <div>
+                <h1 id="hello">Сәлем! 👋</h1>
+                <p id="sub">Бүгінгі сабақты бастайық</p>
+                <button class="theme-toggle" data-theme-toggle type="button" aria-label="Тақырып">🌙</button>
+              </div>
+              <!-- МАСКОТ: поменяйте src на путь к своему файлу -->
+              <img class="mascot" src="assets/mascot.png" alt="Bimbox" width="150" height="150" fetchpriority="high" decoding="async" />
+            </div>
+            <div class="stats-row" id="stats"></div>
+            <section class="card goal-card hidden" id="goal"></section>
+            <section class="card">
+              <h3>Daily Streak 🔥</h3>
+              <div class="streak-grid" id="streak"></div>
+              <button class="btn btn-block" id="gift" type="button">Сыйлық алу</button>
+            </section>
+          </div>
+          <section class="home-col">
+            <h3>Курсты жалғастыру</h3>
+            <div class="lesson-list" id="lessons"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <script type="module">
+      import { initChrome, toast, launchConfetti, el } from "./js/ui.js";
+      import { t } from "./js/i18n-kk.js";
+      import { guardPage, lastUid } from "./js/auth.js";
+      import { getLessons } from "./js/data/words.js";
+      import { getUserProfile, getCourseProgress, claimDailyReward, todayKey, peekProfile, peekProgress } from "./js/db.js";
+
+      initChrome({ nav: "home" });
+      const LANG = "en"; /* курс один — ағылшын тілі */
+      let user = null;
+      let profile = null;
+      let progress = { completedLessonIds: [] };
+      let plan = null;
+      const hello = document.getElementById("hello");
+
+      function paintStats() {
+        const box = document.getElementById("stats");
+        box.replaceChildren();
+        [
+          [profile.points || 0, t.points],
+          [profile.streak || 0, t.streak],
+          [profile.learnedWords || 0, t.learned],
+          ["❤".repeat(profile.hearts || 5), t.hearts],
+        ].forEach(([n, l]) => {
+          const s = el("div", { class: "stat" });
+          s.append(el("b", { text: String(n) }), el("span", { text: l }));
+          box.append(s);
+        });
+      }
+
+      /* дневная цель из онбординга: «N сабақ» в день */
+      function paintGoal() {
+        const box = document.getElementById("goal");
+        if (!plan || !plan.dailyLessons) return;
+        const need = plan.dailyLessons;
+        const done = profile.todayLessonsDate === todayKey() ? profile.todayLessons || 0 : 0;
+        const pct = Math.min(100, Math.round((done / need) * 100));
+        box.classList.remove("hidden");
+        box.replaceChildren();
+        const row = el("div", { class: "row" });
+        row.append(el("span", { text: "🎯 Бүгінгі мақсат" }), el("span", { text: `${Math.min(done, need)} / ${need} сабақ` }));
+        const bar = el("div", { class: "progress", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(pct) });
+        const span = el("span");
+        span.style.width = `${pct}%`;
+        bar.append(span);
+        box.append(row, bar, el("p", { text: done >= need ? "Мақсат орындалды — тамаша! 🎉" : `Күніне ~${plan.dailyMinutes} минут` }));
+      }
+
+      function paintStreak() {
+        const days = ["Дс", "Сс", "Ср", "Бс", "Жм", "Сн", "Жс"];
+        const grid = document.getElementById("streak");
+        grid.replaceChildren();
+        const todayIdx = (new Date().getDay() + 6) % 7;
+        const streak = profile.streak || 0;
+        days.forEach((d, i) => {
+          const cell = el("div", { class: "streak-day" });
+          if (i < todayIdx && todayIdx - i <= streak) cell.classList.add("done");
+          if (i === todayIdx) cell.classList.add("today");
+          cell.append(el("span", { text: "🪙" }), el("span", { text: d }));
+          grid.append(cell);
+        });
+      }
+
+      function paintGift() {
+        const today = todayKey();
+        const btn = document.getElementById("gift");
+        const can = profile.lastLessonDate === today && profile.dailyRewardClaimedDate !== today;
+        btn.disabled = !can;
+        btn.onclick = async () => {
+          try {
+            const res = await claimDailyReward(user.uid);
+            if (!res.ok && res.reason === "already") toast(t.giftAlready, "err");
+            else if (!res.ok) toast(t.giftNeedLesson, "err");
+            else {
+              profile = res.profile;
+              toast(t.giftClaimed, "ok");
+              launchConfetti();
+              paintStats();
+              paintGift();
+            }
+          } catch (e) {
+            toast(e.message || "Қате", "err");
+          }
+        };
+      }
+
+      /* самая частая тема урока — чтобы показать, что он совпадает с интересами из онбординга */
+      function lessonTopic(ls) {
+        const count = {};
+        ls.words.forEach((w) => (count[w.category] = (count[w.category] || 0) + 1));
+        const top = Object.entries(count).sort((a, b) => b[1] - a[1])[0];
+        return top ? top[0] : null;
+      }
+
+      function paintLessons() {
+        const lang = LANG;
+        const lessons = getLessons(lang);
+        const done = new Set(progress.completedLessonIds || []);
+        /* уровень из онбординга: первые N уроков открыты сразу */
+        const skip = Math.min(plan?.skip || 0, Math.max(lessons.length - 1, 0));
+        const wanted = new Set(plan?.topics || []);
+        const open = (i) => i <= skip || done.has(lessons[i - 1].id);
+        const currentIdx = lessons.findIndex((ls, i) => i >= skip && !done.has(ls.id) && open(i));
+        const box = document.getElementById("lessons");
+        box.replaceChildren();
+        lessons.forEach((ls, i) => {
+          const prevOk = open(i);
+          const finished = done.has(ls.id);
+          const current = i === currentIdx;
+          const btn = el("button", { class: `lesson-item ${current ? "current" : ""}`, type: "button" });
+          btn.disabled = !prevOk;
+          const mark = finished ? "✔" : prevOk ? "▶" : "🔒";
+          btn.append(el("span", { text: mark }), el("b", { text: ls.title }));
+          const topic = lessonTopic(ls);
+          if (current) btn.append(el("span", { class: "tag", text: "Ұсынылған" }));
+          else if (topic && wanted.has(topic) && !finished) btn.append(el("span", { class: "tag", text: t.categories[topic] || "" }));
+          btn.addEventListener("click", () => {
+            if (!prevOk) {
+              toast(t.lessonLocked, "err");
+              return;
+            }
+            location.href = `lesson.html?lang=${lang}&lesson=${ls.id}`;
+          });
+          box.append(btn);
+        });
+      }
+
+      function paintAll() {
+        plan = profile.onboarding || null;
+        hello.textContent = `${t.hello}, ${profile.displayName || "оқушы"}! 👋`;
+        paintStats();
+        paintGoal();
+        paintStreak();
+        paintGift();
+        paintLessons();
+      }
+
+      /* 1) мгновенно рисуем из кеша прошлого визита (если он есть) */
+      const hint = lastUid();
+      const cachedProfile = hint ? peekProfile(hint) : null;
+      if (cachedProfile && cachedProfile.onboardingDone !== false) {
+        profile = cachedProfile;
+        progress = peekProgress(hint, LANG) || progress;
+        paintAll();
+      }
+
+      /* 2) проверяем вход и параллельно тянем свежие данные */
+      user = await guardPage({ requireAuth: true });
+      if (!user) throw new Error("auth");
+      const [fresh, freshProgress] = await Promise.all([getUserProfile(user.uid), getCourseProgress(user.uid, LANG)]);
+      if (fresh.onboardingDone === false) {
+        /* новый аккаунт, который ещё не прошёл онбординг-квиз */
+        location.replace("onboarding.html");
+        throw new Error("onboarding");
+      }
+      profile = fresh;
+      progress = freshProgress;
+      paintAll();
+    </script>
+  </body>
+</html>
