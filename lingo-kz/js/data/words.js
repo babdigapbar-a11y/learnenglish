@@ -1,10 +1,6 @@
 /* Локальный банк слов. В Firestore хранится только прогресс пользователя. */
 export const LANGUAGES = [
   { id: "en", flag: "🇬🇧", speech: "en-US" },
-  { id: "ru", flag: "🇷🇺", speech: "ru-RU" },
-  { id: "tr", flag: "🇹🇷", speech: "tr-TR" },
-  { id: "ko", flag: "🇰🇷", speech: "ko-KR" },
-  { id: "de", flag: "🇩🇪", speech: "de-DE" },
 ];
 
 export const CATEGORY_KEYS = [
