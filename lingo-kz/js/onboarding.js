@@ -7,7 +7,7 @@ import { guardPage } from "./auth.js";
 import { getUserProfile, updateUserProfile } from "./db.js";
 
 /* Путь к картинке маскота — меняется здесь и в HTML-тегах <img class="mascot"> */
-const MASCOT_SRC = "assets/mascot.svg";
+const MASCOT_SRC = "assets/mascot.png";
 
 export const GOALS = [
   { id: "travel", emoji: "✈️", label: "Саяхат", sub: "Шетелде еркін жүру" },
