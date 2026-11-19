@@ -230,11 +230,11 @@ export const WORDS = [
   w("de", "Fenster", "терезе", "/ˈfɛnstɐ/", "Das Fenster ist offen.", "Терезе ашық.", "home", "🪟"),
 ];
 
-export function getWordsByLang(lang) {
+export function getWordsByLang("en") {
   return WORDS.filter((x) => x.language === lang);
 }
 
-export function getLessons(lang) {
+export function getLessons("en") {
   const list = getWordsByLang(lang);
   const lessons = [];
   const size = 10;
@@ -250,7 +250,7 @@ export function getLessons(lang) {
   return lessons;
 }
 
-export function getSpeechLang(lang) {
+export function getSpeechLang("en") {
   return LANGUAGES.find((l) => l.id === lang)?.speech || "en-US";
 }
 
